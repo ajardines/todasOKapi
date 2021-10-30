@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.idea/
+.idea/vcs.xml
+.vscode/
+npm-debug.log
+env-local.yml
+.DS_Store
+test/.DS_Store
+.env
+heapdump-*
+newrelic_agent.log
+newrelic.js
+.nyc_output
