@@ -1,0 +1,26 @@
+GET http://localhost:3033/api
+
+###
+GET http://localhost:3033/api/info
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjaGVjayI6ZmFsc2UsImlhdCI6MTYzNDYwMzk5NX0.gwI2Fe4yuP2EYCYgpJ2zyZGVcEZVCglwmE6FvbWM1EA
+
+###
+POST http://localhost:3033/api/login
+content-type: application/json
+
+{
+    "username": "mandy",
+    "password": "123"
+}
+
+###
+POST http://localhost:3033/api/create-user
+content-type: application/json
+
+{
+  "username": "mandy",
+  "email": "mandy@email.com",
+  "name": "Mandy",
+  "lastName": "Jard",
+  "password": "123"
+}
