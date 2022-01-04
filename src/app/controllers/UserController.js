@@ -1,3 +1,4 @@
+const EmailService = require('../services/EmailService');
 const UserService = require('../services/UserService');
 
 const UserController = module.exports;
@@ -11,28 +12,53 @@ UserController.createUser = async (req, res, next) => {
 };
 
 UserController.login = (req, res, next) => {
-  // if (req.body.username === 'admin' && req.body.password === '123') {
-  //   const payload = {
-  //     check: false,
-  //   };
-  //   const token = jwt.sign(payload, keys.secretKey);
-
-  //   res.json({
-  //     message: '!Autenticacion exitosa!',
-  //     token,
-  //   });
-  // } else {
-  //   res.json({
-  //     message: 'Usuario y/o password incorrectos',
-  //   });
-  // }
   const user = req.body;
 
   return UserService.login(user)
-    .then((token) => res.send(token))
+    .then((token) => res.json(token))
     .catch(next);
 };
 
+UserController.validateEmail = (req, res, next) => {
+  const { userId: id } = res.locals;
+
+  return UserService.validateEmail({ id })
+    .then((userUpdated) => res.send(userUpdated))
+    .catch(next);
+};
+
+UserController.getUser = async (req, res, next) => {
+  const { userId: id } = res.locals;
+
+  return UserService.getUserById({ id })
+    .then((userFound) => res.send(userFound))
+    .catch(next);
+};
+
+UserController.forgotPassword = async (req, res, next) => {
+  const { email, email: username } = req.body;
+
+  return UserService.forgotPassword({ email, username })
+    .then((user) => res.send(user))
+    .catch(next);
+};
+
+UserController.updatePassword = async (req, res, next) => {
+  const { userId: id } = res.locals;
+  const { password } = req.body;
+
+  return UserService.updatePassword({ id, password })
+    .then((userFound) => res.send(userFound))
+    .catch(next);
+};
+
+// Test
 UserController.info = (req, res) => {
   res.json('INFO VALIDADA');
+};
+
+UserController.sendEmailTets = (req, res) => {
+  const { email } = req.body;
+  EmailService.sendValidationMail({ name: 'Perez', lastName: 'Perez', email }, 'asd');
+  res.json('Email');
 };

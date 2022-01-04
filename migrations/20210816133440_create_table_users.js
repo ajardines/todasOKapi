@@ -7,6 +7,7 @@ exports.up = function (knex) {
     table.string('password').notNull();
     table.string('email').notNull();
     table.string('role').notNull();
+    table.boolean('is_validated_email').defaultTo(false);
   });
 };
 

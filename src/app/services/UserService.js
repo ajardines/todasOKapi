@@ -7,6 +7,7 @@ const { ROLES } = require('../enumerations/roles');
 const CustomError = require('../../common/middleware/CustomError');
 const UserRepository = require('../repositories/UserRepository');
 const keys = require('../../../setting/keys');
+const EmailService = require('./EmailService');
 
 const UserService = module.exports;
 
@@ -31,6 +32,13 @@ UserService.createUser = async (user) => {
 
   const userInserted = await UserRepository.createUser({ ...user, role, password: passHash });
 
+  const payload = {
+    userId: userInserted.id,
+    role: userInserted.role,
+  };
+  const token = jwt.sign(payload, keys.secretKey, { expiresIn: '10h' });
+  EmailService.sendValidationMail(userInserted, token);
+
   return { ...user, id: userInserted.id, password: passHash };
 };
 
@@ -54,4 +62,48 @@ UserService.login = async (user) => {
   const token = jwt.sign(payload, keys.secretKey);
 
   return token;
+};
+
+UserService.validateEmail = async (user) => {
+  const userUpdated = await UserRepository.validateEmail(user);
+
+  if (_.isEmpty(userUpdated)) {
+    throw new CustomError(StatusCodes.BAD_REQUEST, 'Ocurrió un error el email no pudo ser validado');
+  }
+
+  return userUpdated;
+};
+
+UserService.getUserById = async (user) => {
+  const userFound = await UserRepository.getUserById(user);
+
+  if (_.isEmpty(userFound)) {
+    throw new CustomError(StatusCodes.NOT_FOUND, 'No se encontró el usuario');
+  }
+
+  return _.omit(userFound, ['id', 'email', 'password']);
+};
+
+UserService.forgotPassword = async (user) => {
+  const userFound = await UserRepository.getUserByEmailOrUsername(user);
+
+  const payload = {
+    userId: userFound.id,
+    role: userFound.role,
+  };
+  const token = jwt.sign(payload, keys.secretKey, { expiresIn: '10h' });
+  EmailService.sendForgotPassword(userFound, token);
+
+  return _.omit(userFound, ['id', 'email', 'password']);
+};
+
+UserService.updatePassword = async (user) => {
+  const passHash = await bcrypt.hash(user.password, SALT_ROUNDS);
+  const userUpdated = await UserRepository.updatePassword({ ...user, password: passHash });
+
+  if (_.isEmpty(userUpdated)) {
+    throw new CustomError(StatusCodes.BAD_REQUEST, 'Ocurrio un error al actualizar la contraseña');
+  }
+
+  return _.omit(userUpdated, ['id', 'email', 'password']);
 };

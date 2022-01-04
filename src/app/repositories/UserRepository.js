@@ -1,3 +1,4 @@
+const camelcaseKeys = require('camelcase-keys');
 const _ = require('lodash');
 const db = require('../../common/utils/db');
 
@@ -13,10 +14,10 @@ UserRepository.createUser = async (user) => {
     role: user.role,
   };
 
-  const userInserted = await db('users')
+  const userIdInserted = await db('users')
     .insert(insertUser);
 
-  return userInserted;
+  return { ...user, id: userIdInserted.pop() };
 };
 
 UserRepository.getUserByEmailOrUsername = async (user) => {
@@ -30,7 +31,42 @@ UserRepository.getUserByEmailOrUsername = async (user) => {
   if (_.isEmpty(userFound)) {
     return {};
   }
-  userFound.lastName = userFound.last_name;
+  return camelcaseKeys(userFound);
+};
 
-  return userFound;
+UserRepository.getUserById = async (user) => {
+  const data = await db('users')
+    .select('*')
+    .from('users')
+    .where('users.id', user.id);
+
+  const userFound = data.pop();
+  if (_.isEmpty(userFound)) {
+    return {};
+  }
+  return camelcaseKeys(userFound);
+};
+
+UserRepository.validateEmail = async (user) => {
+  const data = await db('users')
+    .update('is_validated_email', true)
+    .where('users.id', user.id);
+
+  if (!data) {
+    return {};
+  }
+
+  return user;
+};
+
+UserRepository.updatePassword = async (user) => {
+  const data = await db('users')
+    .update('password', user.password)
+    .where('users.id', user.id);
+
+  if (!data) {
+    return {};
+  }
+
+  return user;
 };

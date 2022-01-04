@@ -18,9 +18,22 @@ POST http://localhost:3033/api/create-user
 content-type: application/json
 
 {
-  "username": "mandy",
-  "email": "mandy@email.com",
+  "username": "armando.jardines",
+  "email": "armando.jardines@rappi.com",
   "name": "Mandy",
   "lastName": "Jard",
   "password": "123"
 }
+
+###
+POST http://localhost:3033/api/send-email-test
+content-type: application/json
+
+{
+  "email": "ajardines89@gmail.com"
+}
+
+###
+PUT http://localhost:3033/api/validate-email
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJVU0VSIiwiaWF0IjoxNjM2NTAyNTUzLCJleHAiOjE2MzY1Mzg1NTN9.f1zoMLTHMP4idXYStJCzlqePeITfTv99qczUpcaQLQA
